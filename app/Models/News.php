@@ -22,14 +22,10 @@ class News extends Model
 
     public $timestamps = false;
 
-    /**
-     * @param string $query
-     * @return News[]
-     */
-    public static function search(string $query): array
+    public static function search(string $query, $select = ['*'])
     {
         $query = "%$query%";
-        return self::select('id', 'title', 'updated_at')->where('title', 'like', $query)
+        return self::select($select)->where('title', 'like', $query)
             ->orWhere('body', 'like', $query)->get();
     }
 }

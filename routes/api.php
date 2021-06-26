@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\UserNewsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,3 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::group(['middleware' => ['permission:read news']], function () {
+    Route::get('/user/news', [UserNewsController::class, 'news']);
+});
+
