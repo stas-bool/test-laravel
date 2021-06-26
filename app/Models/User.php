@@ -7,6 +7,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
+/**
+ * Class User
+ * @property int $id
+ * @property string $name
+ * @property string $email
+ * @property int $email_verified_at
+ * @property string $password
+ * @property string $api_token
+ * @property string $remember_token
+ * @property int $created_at
+ * @property int $updated_at
+ * @package App\Models
+ */
 class User extends Authenticatable
 {
     use HasFactory, Notifiable, HasRoles;
