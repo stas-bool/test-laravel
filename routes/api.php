@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\AdminNewsController;
-use App\Http\Controllers\UserNewsController;
+use App\Http\Controllers\NewsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,17 +14,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// User group
-Route::group(['middleware' => ['permission:read news']], function () {
-    Route::get('/user/news/', [UserNewsController::class, 'index']);
-    Route::get('/user/news/{id}', [UserNewsController::class, 'show']);
+Route::group(['middleware' => ['role:user|admin']], function () {
+    Route::resource('news', NewsController::class)
+        ->only(['index', 'show']);
 });
 
-//Admin group
 Route::group(['middleware' => ['role:admin']], function () {
-    Route::patch('/admin/news/{id}', [AdminNewsController::class, 'update']);
-    Route::get('/admin/news/', [AdminNewsController::class, 'index']);
-    Route::get('/admin/news/{id}', [AdminNewsController::class, 'show']);
-    Route::post('/admin/news/', [AdminNewsController::class, 'create']);
+    Route::resource('news', NewsController::class)
+        ->only(['store', 'update']);
 });
-

@@ -20,7 +20,7 @@ class UserNewsTest extends TestCase
 
     public function test_guest_can_not_read_news(): void
     {
-        $response = $this->get('/api/user/news/?search=lorem');
+        $response = $this->get('/api/news/?search=lorem');
         $response->assertForbidden();
     }
 
@@ -28,9 +28,9 @@ class UserNewsTest extends TestCase
     {
         $user = User::role('user')->first();
         $response = $this->actingAs($user)
-            ->get('/api/user/news/?search=lorem');
+            ->get('/api/news/?search=lorem');
 
-        $response->assertStatus(200);
+        $response->assertSuccessful();
 
         $response->assertJson(function (AssertableJson $json) {
             $json->first(function ($json) {
@@ -48,9 +48,9 @@ class UserNewsTest extends TestCase
         $post = News::first();
 
         $response = $this->actingAs($user)
-            ->get('/api/user/news/'.$post->id);
+            ->get('/api/news/'.$post->id);
 
-        $response->assertStatus(200);
+        $response->assertSuccessful();
         $response->assertJson(function (AssertableJson $json) use ($post) {
             $json->where('id', $post->id)
                 ->missing('status')
@@ -69,16 +69,16 @@ class UserNewsTest extends TestCase
         $nonExistentPostId = 99999999;
 
         $response = $this->actingAs($user)
-            ->get('/api/user/news/'.$nonExistentPostId);
+            ->get('/api/news/'.$nonExistentPostId);
 
-        $response->assertStatus(404);
+        $response->assertNotFound();
     }
 
     public function test_user_can_not_create_post(): void
     {
         $user = User::role('user')->first();
         $response = $this->actingAs($user)
-            ->post('/api/admin/news/');
+            ->post('/api/news/');
         $response->assertForbidden();
     }
 }

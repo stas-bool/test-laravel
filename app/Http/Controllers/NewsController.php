@@ -6,21 +6,27 @@ use App\Http\Requests\StorePostRequest;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class AdminNewsController extends Controller
+class NewsController extends Controller
 {
     public function index(Request $request): JsonResponse
     {
         $search = $request->get('search');
         if (!is_null($search)) {
-            $news = News::search($search, ['id', 'title', 'updated_at', 'status']);
+            $user = Auth::user();
+            $select = ['id', 'title', 'updated_at'];
+            if (!is_null($user) && $user->hasRole('admin')) {
+                $select[] = 'status';
+            }
+            $news = News::search($search, $select);
         } else {
             $news = [];
         }
         return response()->json($news);
     }
 
-    public function create(StorePostRequest $request): JsonResponse
+    public function store(StorePostRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
@@ -35,36 +41,24 @@ class AdminNewsController extends Controller
         return response()->json(['status' => 'Error'], 400);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     */
-    public function show($id): JsonResponse
+    public function show(News $news): JsonResponse
     {
-        $post = News::select(['id', 'title', 'body', 'updated_at', 'status'])
-            ->where('id', '=', $id)->first();
-        if (is_null($post)) {
-            return response()->json('Post not found', 404);
+        $user = Auth::user();
+        if (!is_null($user) && $user->hasRole('user')) {
+            $news->setHidden(['status']);
         }
-        return response()->json($post);
+        return response()->json($news);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id): JsonResponse
+    public function update(Request $request, News $news): JsonResponse
     {
         $validated = $request->validate([
             'status' => 'required|string'
         ]);
-        $post = News::find($id);
-        if (is_null($post)) {
-            return response()->json('Post not found', 404);
-        }
 
-        $post->status = $validated['status'];
-        $post->save();
-        if ($post->save()) {
+        $news->status = $validated['status'];
+        $news->save();
+        if ($news->save()) {
             return response()->json(['status' => 'Updated'], 204);
         }
         return response()->json(['status' => 'Error'], 400);
