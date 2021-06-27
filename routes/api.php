@@ -1,7 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminNewsController;
 use App\Http\Controllers\UserNewsController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,10 +15,17 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// User group
 Route::group(['middleware' => ['permission:read news']], function () {
-    Route::get('/user/news', [UserNewsController::class, 'news']);
+    Route::get('/user/news/', [UserNewsController::class, 'index']);
+    Route::get('/user/news/{id}', [UserNewsController::class, 'show']);
+});
+
+//Admin group
+Route::group(['middleware' => ['role:admin']], function () {
+    Route::patch('/admin/news/{id}', [AdminNewsController::class, 'update']);
+    Route::get('/admin/news/', [AdminNewsController::class, 'index']);
+    Route::get('/admin/news/{id}', [AdminNewsController::class, 'show']);
+    Route::post('/admin/news/', [AdminNewsController::class, 'create']);
 });
 
